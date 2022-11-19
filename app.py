@@ -39,24 +39,17 @@ reduce_header_height_style = """
 """
 st.markdown(reduce_header_height_style, unsafe_allow_html=True)
 
-
 st.write(
     '<style>div.row-widget.stRadio > div{flex-direction:row;justify-content: left;} </style>', unsafe_allow_html=True)
-
 
 def local_css(file_name):
     with open(file_name) as f:
         st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
 
-
 local_css("style.css")
-
-
-
 # Initialization of session state
 if 'sliderValues' not in st.session_state:
     st.session_state['sliderValues'] = []
-
 if 'groups' not in st.session_state:
     st.session_state['groups'] = []
 if 'audio' not in st.session_state:
@@ -67,16 +60,12 @@ if 'spectrum' not in st.session_state:
     st.session_state['spectrum'] = []
 if 'fft_frequency' not in st.session_state:
     st.session_state['fft_frequency'] = []
-
 if  'Uniform_Range_Default' not in st.session_state:
     st.session_state['Uniform_Range_Default']=[]
 if  'spectrum_inv' not in st.session_state:
     st.session_state['spectrum_inv']=[]
-
-
 if  'spectrum_inv_uniform' not in st.session_state:
     st.session_state['spectrum_inv_uniform']=[]
-
 if 'start' not in st.session_state:
     st.session_state['start']=0
 if 'size1' not in st.session_state:
@@ -94,9 +83,6 @@ if 'startSize' not in st.session_state:
 
 
 select_col,graph=st.columns((1,4))
-
-
-
 with select_col:
      Mode_Selection=st.selectbox(
      'Equalizer',
@@ -106,23 +92,26 @@ with select_col:
         Functions.plotSpectrogram(st.session_state['audio'],st.session_state['sampleRare'],'Input')
         Functions.plotSpectrogram(st.session_state['spectrum_inv'],st.session_state['sampleRare'],'Output')
 
-
+ranges={
+    "uniform":[],
+    "music": [[0,279],[280, 1000],[1000, 7000]],
+    "vocals":[[1895,7805],[100,1000]]
+}
 if Mode_Selection=='Uniform Range' :
     sliders_number = 10
-    lst_final=[]
+    rangesKey="uniform"
+    # lst_final=[]
     text=["1st","2nd","3rd","4th","5th","6th","7th","8th","9th","10th"]
     flag=1
 if Mode_Selection=='Musical Instruments' :
     sliders_number = 3
-
-   
     Drums =[0,279]
     English_horn = [280, 1000]
     Glockenspeil =[1000, 7000]
+    rangesKey="music"
 
-    lst_final_music=[Drums,English_horn,Glockenspeil]
+    # lst_final_music=[Drums,English_horn,Glockenspeil]
     text=["Drums","English_horn","Glockenspeil"]
-
     flag=1
       
 if Mode_Selection=='Vowels' :
@@ -130,19 +119,15 @@ if Mode_Selection=='Vowels' :
 
     lst_sh=[1895,7805]
     lst_y=[100,1000]
- 
-    lst_final=[lst_sh,lst_y]
+    rangesKey="vocals"
+    # lst_final=[lst_sh,lst_y]
     text=["SH","Y"]
-
-
-
     flag=1
 
 if Mode_Selection=='Voice Changer' :
     sliders_number = 1 
     flag= 1
-    text=["Female to male"]
-      
+    text=["Female to male"]    
 with select_col:
         upload_file= st.file_uploader("Upload your File",type='wav')
 if not upload_file:
@@ -154,16 +139,14 @@ if  flag==1:
     st.session_state['audio']=audio_trim
     #play audio
     with select_col:
+        st.write('Original Audio')
         if upload_file:
             st.audio(upload_file, format='audio/wav')
         else:
             input_bytes=Functions.convertToAudio(st.session_state['sampleRare'],st.session_state['audio'])
-            st.write('Original Audio')
             st.audio(input_bytes, format='audio/wav')
     with graph:
       pause_btn= st.button("▷")
-
-    
     # transform to fourier 
     list_freq_domain,frequncies, magnitude,phase, number_samples = Functions.fourier_transformation(st.session_state['audio'], st.session_state['sampleRare'])    
     freq_axis_list, amplitude_axis_list,bin_max_frequency_value = Functions.bins_separation(frequncies, magnitude, sliders_number)
@@ -177,22 +160,14 @@ if  flag==1:
           st.session_state['spectrum_inv']=Functions.inverse(Modified_signal,phase) 
        
         else:
-            if Mode_Selection=="Vowels":
-         
-              Modified_signal=Functions.final_func(list_freq_domain,frequncies,lst_final,valueSlider)
-          
-            elif Mode_Selection== "Musical Instruments":
-               Modified_signal=Functions.final_func(list_freq_domain,frequncies,lst_final_music,valueSlider)    
-            st.session_state['spectrum_inv']=np.fft.irfft(Modified_signal)
-
-        
-        
-      
+            Modified_signal=Functions.final_func(list_freq_domain,frequncies,ranges[rangesKey],valueSlider)
+            # elif Mode_Selection== "Musical Instruments":
+            #    Modified_signal=Functions.final_func(list_freq_domain,frequncies,lst_final_music,valueSlider)    
+            st.session_state['spectrum_inv']=np.fft.irfft(Modified_signal)     
     #convert to audio
     result_bytes = Functions.convertToAudio(st.session_state['sampleRare'], st.session_state['spectrum_inv'])
     with graph:
         Functions.plotShow(st.session_state['audio'], st.session_state['spectrum_inv'], pause_btn,valueSlider,st.session_state['sampleRare'])
     with select_col:
         st.write('Modified Audio')
-
         st.audio(result_bytes, format='audio/wav')
