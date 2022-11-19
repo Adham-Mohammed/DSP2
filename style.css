@@ -16,7 +16,6 @@
 
 }
 .css-6kekos.edgvbvh9{
-    /* margin-top: 0px; */
     min-width: 70px;
     min-height: 30px;
     color: black;
@@ -33,7 +32,6 @@
     font-family: "Source Code Pro", monospace;
     white-space: pre;
     font-size: 13px;
-    /* text-align: center; */
     overflow-x: auto;
     margin-top: -22px;
     margin-left: 15px;
@@ -47,11 +45,10 @@
     font-weight: 400;
     font-size: larger;
     padding: 0;
-    /* border-radius: 0.25rem; */
     margin: 0px;
     margin-top: -30px;
+    margin-left: 50px;
     line-height: 1.6;
-    /* color: black; */
     width: auto;
     user-select: none;
     background-color: rgb(240, 242, 246);
@@ -59,9 +56,14 @@
 }
 .css-ocqkz7{
     margin-top: -15px;
-    /* margin-left: 0; */
 }
 
+<<<<<<< HEAD
+.css-k1vhr4 {
+    overflow: hidden;
+  }
+=======
 /* .css-k1vhr4 {
     overflow: hidden;
   } */
+>>>>>>> 8af0538cb34d6b0d939b4fa20456ae75c8957c98
