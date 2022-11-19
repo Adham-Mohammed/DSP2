@@ -12,10 +12,6 @@ import time
 import pandas as pd
 import plotly.graph_objects as go
 
-
-
-
-
 class Functions():
     def Sliders_generation( sliders_number,text):
             columns = st.columns(sliders_number)
@@ -77,21 +73,22 @@ class Functions():
 
         return freq_list, amplitude_list,bin_max_frequency_value
 
-   
-
-        
     def convertToAudio(sr,signal):
         bytes_wav = bytes()
         byte_io = io.BytesIO(bytes_wav)
         write(byte_io,sr, signal.astype(np.float32))
         result_bytes = byte_io.read()
         return result_bytes
-
+    
+    # def inverse(phase, mag):
+    #     newData = mag * np.exp(1j * phase)
+    #     iFFt = np.float64(np.fft.irfft(newData))
+    #     return iFFt
     def inverse(amp,phase):
         combined=np.multiply(amp,np.exp(1j*phase))
         inverse_combined=np.fft.irfft(combined)
-        signal=np.real(inverse_combined)
-        return signal
+        # signal=np.real(inverse_combined)
+        return inverse_combined
         
     def plotSpectrogram(audioData, fs, Title):
             N = 512
@@ -117,7 +114,6 @@ class Functions():
             fig.update_yaxes(title='Frequency')
             st.sidebar.plotly_chart(fig, use_container_width=True)
 
-        
     def plot_animation(df):
             brush = alt.selection_interval()
             chart1 = alt.Chart(df).mark_line().encode(
