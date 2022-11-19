@@ -93,7 +93,7 @@ with select_col:
 ranges={
     "uniform":[],
     "music": [[0,279],[280, 1000],[1000, 7000]],
-    "vocals":[[1895,7805],[100,1000],[55,460]],
+    "vocals":[[1895,7805],[100,1000],[55,460],[1500, 3000]],
     "animals":[[187.5,1300],[1300,3300],[1300,7000]]}
 if Mode_Selection=='Uniform Range' :
     sliders_number = 10
