@@ -84,7 +84,7 @@ select_col,graph=st.columns((1,4))
 with select_col:
      Mode_Selection=st.selectbox(
      'Equalizer',
-     ('Uniform Range', 'Vowels', 'Musical Instruments','Voice Changer'))
+     ('Uniform Range', 'Vowels', 'Musical Instruments','Animals','Voice Changer'))
      spec_visibality=st.checkbox("Spectrogram")
      if spec_visibality:
         Functions.plotSpectrogram(st.session_state['audio'],st.session_state['sampleRare'],'Input')
@@ -93,26 +93,22 @@ with select_col:
 ranges={
     "uniform":[],
     "music": [[0,279],[280, 1000],[1000, 7000]],
-    "vocals":[[1895,7805],[100,1000],[55,460],[1400, 3100]]
-}
+    "vocals":[[1895,7805],[100,1000],[55,460]],
+    "animals":[[187.5,1300],[1300,3300],[1300,7000]]}
 if Mode_Selection=='Uniform Range' :
     sliders_number = 10
     rangesKey="uniform"
-    # lst_final=[]
     text=["1st","2nd","3rd","4th","5th","6th","7th","8th","9th","10th"]
-    flag=1
 if Mode_Selection=='Musical Instruments' :
     sliders_number = 3
-    Drums =[0,279]
-    English_horn = [280, 1000]
-    Glockenspeil =[1000, 7000]
     rangesKey="music"
-
-    # lst_final_music=[Drums,English_horn,Glockenspeil]
     text=["Drums","English_horn","Glockenspeil"]
-    flag=1
-      
+if Mode_Selection=='Animals' :
+    sliders_number = 3
+    rangesKey="animals"
+    text=["Dog","Horse","Duck"]
 if Mode_Selection=='Vowels' :
+
     sliders_number = 4
 
     lst_sh=[1895,7805]
@@ -124,52 +120,48 @@ if Mode_Selection=='Vowels' :
 
 if Mode_Selection=='Voice Changer' :
     sliders_number = 1 
-    flag= 1
     text=["Female to male"]    
+
+
+
 with select_col:
         upload_file= st.file_uploader("Upload your File",type='wav')
 if not upload_file:
     st.session_state['audio'],st.session_state['sampleRare']=librosa.load("audio\hello-female-friendly-professional.wav")
 else:
     st.session_state['audio'],st.session_state['sampleRare']= librosa.load(upload_file)
-if  flag==1:
-    audio_trim,_ = librosa.effects.trim(st.session_state['audio'], top_db=30)
-    st.session_state['audio']=audio_trim
-    #play audio
-    with select_col:
-        st.write('Original Audio')
-        if upload_file:
-            st.audio(upload_file, format='audio/wav')
-        else:
-            input_bytes=Functions.convertToAudio(st.session_state['sampleRare'],st.session_state['audio'])
-            st.audio(input_bytes, format='audio/wav')
-    with graph:
-      pause_btn= st.button("▷")
-    # transform to fourier 
-    list_freq_domain,frequncies, magnitude,phase, number_samples = Functions.fourier_transformation(st.session_state['audio'], st.session_state['sampleRare'])    
-    freq_axis_list, amplitude_axis_list,bin_max_frequency_value = Functions.bins_separation(frequncies, magnitude, sliders_number)
-    spTry,freqTry, magTry,phaseTry, number_samplesTry = Functions.fourier_transformation(st.session_state['audio'][0:2000], st.session_state['sampleRare'])
-    valueSlider = Functions.Sliders_generation(sliders_number,text)
-    value=valueSlider[0]
-    if Mode_Selection=="Voice Changer":
-       st.session_state['spectrum_inv']=pitch_shift(st.session_state['audio'] , sr= st.session_state['sampleRare'] , n_steps=value*20)
-    else: 
-        if Mode_Selection=="Uniform Range":
-          Modified_signal=Functions.frequencyFunction(valueSlider, amplitude_axis_list) 
-          st.session_state['spectrum_inv']=Functions.inverse(Modified_signal,phase) 
-       
-        else:
-            Modified_signaltry=Functions.final_func(spTry,freqTry,ranges[rangesKey],valueSlider)
-            fig_trans=px.line(x=freqTry, y=np.abs(Modified_signaltry)).update_layout(yaxis_title='Amp',xaxis_title='HZ')
-            st.plotly_chart(fig_trans)
-            Modified_signal=Functions.final_func(list_freq_domain,frequncies,ranges[rangesKey],valueSlider)
-            # elif Mode_Selection== "Musical Instruments":
-            #    Modified_signal=Functions.final_func(list_freq_domain,frequncies,lst_final_music,valueSlider)    
-            st.session_state['spectrum_inv']=np.fft.irfft(Modified_signal)     
-    #convert to audio
-    result_bytes = Functions.convertToAudio(st.session_state['sampleRare'], st.session_state['spectrum_inv'])
-    with graph:
-        Functions.plotShow(st.session_state['audio'], st.session_state['spectrum_inv'], pause_btn,valueSlider,st.session_state['sampleRare'])
-    with select_col:
-        st.write('Modified Audio')
-        st.audio(result_bytes, format='audio/wav')
+audio_trim,_ = librosa.effects.trim(st.session_state['audio'], top_db=30)
+st.session_state['audio']=audio_trim
+#play audio
+with select_col:
+    st.write('Original Audio')
+    if upload_file:
+        st.audio(upload_file, format='audio/wav')
+    else:
+        input_bytes=Functions.convertToAudio(st.session_state['sampleRare'],st.session_state['audio'])
+        st.audio(input_bytes, format='audio/wav')
+with graph:
+    pause_btn= st.button("▷")
+# transform to fourier 
+list_freq_domain,frequncies, magnitude,phase, number_samples = Functions.fourier_transformation(st.session_state['audio'], st.session_state['sampleRare'])    
+freq_axis_list, amplitude_axis_list,bin_max_frequency_value = Functions.bins_separation(frequncies, magnitude, sliders_number)
+valueSlider = Functions.Sliders_generation(sliders_number,text)
+value=valueSlider[0]
+
+if Mode_Selection=="Voice Changer":
+    st.session_state['spectrum_inv']=pitch_shift(st.session_state['audio'] , sr= st.session_state['sampleRare'] , n_steps=value*20)
+elif Mode_Selection=="Uniform Range":
+    Modified_signal=Functions.frequencyFunction(valueSlider, amplitude_axis_list) 
+    st.session_state['spectrum_inv']=Functions.inverse(Modified_signal,phase) 
+else:
+    Modified_signal=Functions.final_func(list_freq_domain,frequncies,ranges[rangesKey],valueSlider)
+    st.session_state['spectrum_inv']=np.fft.irfft(Modified_signal)
+    
+
+#convert to audio
+result_bytes = Functions.convertToAudio(st.session_state['sampleRare'], st.session_state['spectrum_inv'])
+with graph:
+    Functions.plotShow(st.session_state['audio'], st.session_state['spectrum_inv'], pause_btn,valueSlider,st.session_state['sampleRare'])
+with select_col:
+    st.write('Modified Audio')
+    st.audio(result_bytes, format='audio/wav')
