@@ -93,7 +93,7 @@ with select_col:
 ranges={
     "uniform":[],
     "music": [[0,279],[280, 1000],[1000, 7000]],
-    "vocals":[[1895,7805],[100,1000],[55,460]]
+    "vocals":[[1895,7805],[100,1000],[55,460],[1400, 3100]]
 }
 if Mode_Selection=='Uniform Range' :
     sliders_number = 10
@@ -113,13 +113,13 @@ if Mode_Selection=='Musical Instruments' :
     flag=1
       
 if Mode_Selection=='Vowels' :
-    sliders_number = 3
+    sliders_number = 4
 
     lst_sh=[1895,7805]
     lst_y=[100,1000]
     rangesKey="vocals"
     # lst_final=[lst_sh,lst_y]
-    text=["SH","Y","Z"]
+    text=["SH","Y","Z","R"]
     flag=1
 
 if Mode_Selection=='Voice Changer' :
