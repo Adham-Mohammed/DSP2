@@ -3,7 +3,6 @@ import streamlit.components.v1 as com
 import  streamlit_vertical_slider  as svs
 import numpy as np
 import scipy as sc
-from scipy.interpolate import interp1d, interp2d,splev
 import pandas as pd
 from math import ceil,floor
 import plotly.express as px
@@ -21,7 +20,6 @@ from plotly.subplots import make_subplots
 import plotly.graph_objects as go
 import time as ti
 from scipy import signal
-from scipy.io import loadmat
 from Functions import Functions
 
 
@@ -95,7 +93,7 @@ with select_col:
 ranges={
     "uniform":[],
     "music": [[0,279],[280, 1000],[1000, 7000]],
-    "vocals":[[1895,7805],[100,1000]]
+    "vocals":[[1895,7805],[100,1000],[55,460]]
 }
 if Mode_Selection=='Uniform Range' :
     sliders_number = 10
@@ -115,13 +113,13 @@ if Mode_Selection=='Musical Instruments' :
     flag=1
       
 if Mode_Selection=='Vowels' :
-    sliders_number = 2
+    sliders_number = 3
 
     lst_sh=[1895,7805]
     lst_y=[100,1000]
     rangesKey="vocals"
     # lst_final=[lst_sh,lst_y]
-    text=["SH","Y"]
+    text=["SH","Y","Z"]
     flag=1
 
 if Mode_Selection=='Voice Changer' :
@@ -150,6 +148,7 @@ if  flag==1:
     # transform to fourier 
     list_freq_domain,frequncies, magnitude,phase, number_samples = Functions.fourier_transformation(st.session_state['audio'], st.session_state['sampleRare'])    
     freq_axis_list, amplitude_axis_list,bin_max_frequency_value = Functions.bins_separation(frequncies, magnitude, sliders_number)
+    spTry,freqTry, magTry,phaseTry, number_samplesTry = Functions.fourier_transformation(st.session_state['audio'][0:2000], st.session_state['sampleRare'])
     valueSlider = Functions.Sliders_generation(sliders_number,text)
     value=valueSlider[0]
     if Mode_Selection=="Voice Changer":
@@ -160,6 +159,9 @@ if  flag==1:
           st.session_state['spectrum_inv']=Functions.inverse(Modified_signal,phase) 
        
         else:
+            Modified_signaltry=Functions.final_func(spTry,freqTry,ranges[rangesKey],valueSlider)
+            fig_trans=px.line(x=freqTry, y=np.abs(Modified_signaltry)).update_layout(yaxis_title='Amp',xaxis_title='HZ')
+            st.plotly_chart(fig_trans)
             Modified_signal=Functions.final_func(list_freq_domain,frequncies,ranges[rangesKey],valueSlider)
             # elif Mode_Selection== "Musical Instruments":
             #    Modified_signal=Functions.final_func(list_freq_domain,frequncies,lst_final_music,valueSlider)    

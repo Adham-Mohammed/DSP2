@@ -1,6 +1,5 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from scipy.io import loadmat
 import math
 import streamlit as st
 import  streamlit_vertical_slider  as svs
@@ -11,7 +10,6 @@ from scipy import signal
 import altair as alt
 import time
 import pandas as pd
-import altair as alt
 import plotly.graph_objects as go
 
 
