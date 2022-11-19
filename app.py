@@ -93,7 +93,7 @@ with select_col:
 ranges={
     "uniform":[],
     "music": [[0,279],[280, 1000],[1000, 7000]],
-    "vocals":[[1895,7805],[55,460],[1500, 3000],[330,3300]],
+    "vocals":[[1895,7805],[1500, 3000],[330,3300]],
     "animals":[[187.5,1300],[1300,3300],[1300,7000]]}
 if Mode_Selection=='Uniform Range' :
     sliders_number = 10
@@ -108,16 +108,10 @@ if Mode_Selection=='Animals' :
     rangesKey="animals"
     text=["Dog","Horse","Duck"]
 if Mode_Selection=='Vowels' :
-
-    sliders_number = 4
-
-    lst_sh=[1895,7805]
-    lst_y=[100,1000]
+    sliders_number =3
     rangesKey="vocals"
-    # lst_final=[lst_sh,lst_y]
-    text=["SH","Z","R","A"]
-    flag=1
-
+    text=["SH","R","A"]
+   
 if Mode_Selection=='Voice Changer' :
     sliders_number = 1 
     text=["Female to male"]    
@@ -149,12 +143,13 @@ valueSlider = Functions.Sliders_generation(sliders_number,text)
 value=valueSlider[0]
 
 if Mode_Selection=="Voice Changer":
-    st.session_state['spectrum_inv']=pitch_shift(st.session_state['audio'] , sr= st.session_state['sampleRare'] , n_steps=value*20)
-elif Mode_Selection=="Uniform Range":
-    Modified_signal=Functions.frequencyFunction(valueSlider, amplitude_axis_list) 
-    st.session_state['spectrum_inv']=Functions.inverse(Modified_signal,phase) 
-else:
-    Modified_signal=Functions.final_func(list_freq_domain,frequncies,ranges[rangesKey],valueSlider)
+    st.session_state['spectrum_inv']=pitch_shift(st.session_state['audio'] , sr= st.session_state['sampleRare'] , n_steps=value*20)    
+else: 
+    if Mode_Selection=="Uniform Range":
+        Modified_signal=Functions.frequencyFunction(valueSlider, amplitude_axis_list) 
+        Modified_signal=np.multiply(Modified_signal,np.exp(1j*phase))
+    else:
+        Modified_signal=Functions.final_func(list_freq_domain,frequncies,ranges[rangesKey],valueSlider)
     st.session_state['spectrum_inv']=np.fft.irfft(Modified_signal)
     
 

@@ -80,16 +80,6 @@ class Functions():
         result_bytes = byte_io.read()
         return result_bytes
     
-    # def inverse(phase, mag):
-    #     newData = mag * np.exp(1j * phase)
-    #     iFFt = np.float64(np.fft.irfft(newData))
-    #     return iFFt
-    def inverse(amp,phase):
-        combined=np.multiply(amp,np.exp(1j*phase))
-        inverse_combined=np.fft.irfft(combined)
-        # signal=np.real(inverse_combined)
-        return inverse_combined
-        
     def plotSpectrogram(audioData, fs, Title):
             N = 512
             w = signal.blackman(N)
